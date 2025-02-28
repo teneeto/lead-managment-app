@@ -5,8 +5,8 @@ import { useSession, signIn } from "next-auth/react";
 
 import { usePathname } from "next/navigation";
 import { capitalizeFirstLetter } from "@/utils/capitalize";
-import { ArrowLeft2, ArrowRight2, ArrowDown } from "iconsax-react";
-import type { LeadData } from "./types";
+import { ArrowDown } from "iconsax-react";
+import Paginate from "@/components/Pagination";
 import {
   Avatar,
   AvatarWrapper,
@@ -20,8 +20,6 @@ import {
   MainContent,
   MenuButton,
   NavLinks,
-  Pagination,
-  PaginationItems,
   Sidebar,
   StyledLink,
   Table,
@@ -30,6 +28,7 @@ import {
   Td,
   Th,
 } from "./styles";
+import type { LeadData } from "./types";
 
 const DashboardLayout: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -195,18 +194,7 @@ const DashboardLayout: React.FC = () => {
             </Table>
           </TableWrapper>
 
-          <Pagination>
-            <PaginationItems>
-              <ArrowLeft2 size={16} color="#c0c0c0" />
-            </PaginationItems>
-            <PaginationItems>1</PaginationItems>
-            <PaginationItems>2</PaginationItems>
-            <PaginationItems isSelected>3</PaginationItems>
-            <PaginationItems>4</PaginationItems>
-            <PaginationItems>
-              <ArrowRight2 size={16} color="#3c3c3c" />
-            </PaginationItems>
-          </Pagination>
+          <Paginate />
         </Content>
       </MainContent>
     </Container>
