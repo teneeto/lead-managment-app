@@ -20,7 +20,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ## Endpoints to Note
 
-To Use this App We have the following endpoints:
+To use this App, we have the following endpoints:
 
 - Open [http://localhost:3000/](http://localhost:3000/): To View the Immigration Assessment Form
 - Open [http://localhost:3000/login](http://localhost:3000/login): To open a login form (With this form you can access the Leads List)
@@ -39,4 +39,15 @@ Password:
 password123
 ```
 
+## File Upload
+We upload files to Firebase, and to use firebase we need to create `.env` file in the root directory with the following credentials
+```bash
+NEXT_PUBLIC_FIREBASE_API_KEY = 
+  NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN = 
+  NEXT_PUBLIC_FIREBASE_PROJECT_ID =
+  NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET =
+  NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID =
+  NEXT_PUBLIC_FIREBASE_APP_ID =
+};
+```
 
