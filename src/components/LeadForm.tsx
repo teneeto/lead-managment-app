@@ -66,7 +66,6 @@ const Container = styled.div`
   justify-content: center;
   min-height: 100vh;
   background-color: #f8f9fa;
-  /* padding: 50px 20px; */
 `;
 
 const FormWrapper = styled.div`
@@ -75,7 +74,6 @@ const FormWrapper = styled.div`
   background: white;
   padding: 40px;
   border-radius: 10px;
-  /* box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1); */
   text-align: center;
 `;
 const FormSection = styled.div`
