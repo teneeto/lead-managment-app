@@ -1,14 +1,20 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import { JsonForms } from "@jsonforms/react";
+import dynamic from "next/dynamic";
 import {
   materialRenderers,
   materialCells,
 } from "@jsonforms/material-renderers";
-import { storage } from "../lib/firebaseConfig";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { JsonFormsCore } from "@jsonforms/core";
+import { storage } from "@/lib/firebaseConfig";
+
+const JsonForms = dynamic(
+  () => import("@jsonforms/react").then((mod) => mod.JsonForms),
+  { ssr: false }
+);
 
 interface LeadData {
   firstName?: string;
@@ -20,23 +26,48 @@ interface LeadData {
   message?: string;
 }
 
+interface JsonFormsChangeEvent extends Pick<JsonFormsCore, "data" | "errors"> {}
+
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh;
-  background-color: #f9f9f9;
-  padding: 20px;
+  min-height: 100vh;
+  background-color: #f4f5f7;
+  padding: 40px;
 `;
 
 const FormWrapper = styled.div`
   width: 100%;
-  max-width: 600px;
+  max-width: 500px;
   background: white;
-  padding: 30px;
-  border-radius: 10px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.1);
+  text-align: center;
+`;
+
+const Title = styled.h2`
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  font-weight: 600;
+  color: #333;
+`;
+
+const SubmitButton = styled.button`
+  width: 100%;
+  padding: 12px;
+  font-size: 1rem;
+  color: white;
+  background-color: #0052cc;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 20px;
+  &:hover {
+    background-color: #003d99;
+  }
 `;
 
 const schema = {
@@ -76,6 +107,14 @@ const uischema = {
 
 const LeadForm: React.FC = () => {
   const [data, setData] = useState<LeadData>({});
+  const [submitted, setSubmitted] = useState<boolean>(false);
+  const [errors, setErrors] = useState<JsonFormsCore["errors"]>([]);
+  const [isMounted, setIsMounted] = useState<boolean>(false);
+  const [submissionStatus, setSubmissionStatus] = useState<string | null>(null);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const handleFileUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -102,24 +141,56 @@ const LeadForm: React.FC = () => {
     );
   };
 
+  const handleSubmit = async () => {
+    setSubmitted(true);
+    if (errors?.length === 0) {
+      try {
+        const response = await fetch("/api/leads", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
+
+        if (response.ok) {
+          setSubmissionStatus("Lead submitted successfully!");
+          setData({});
+        } else {
+          setSubmissionStatus("Submission failed. Please try again.");
+        }
+      } catch (error) {
+        setSubmissionStatus("An error occurred while submitting the form.");
+      }
+    }
+  };
+
   return (
     <Container>
       <FormWrapper>
-        <h2>Get An Assessment Of Your Immigration Case</h2>
-        <JsonForms
-          schema={schema}
-          uischema={uischema}
-          data={data}
-          renderers={materialRenderers}
-          cells={materialCells}
-          onChange={({ data }) => setData(data)}
-        />
+        <Title>Get An Assessment Of Your Immigration Case</Title>
+        {isMounted && (
+          <JsonForms
+            schema={schema}
+            uischema={uischema}
+            data={data}
+            renderers={materialRenderers}
+            cells={materialCells}
+            onChange={({ data, errors }: JsonFormsChangeEvent) => {
+              setData(data);
+              if (submitted) {
+                setErrors(errors || []);
+              }
+            }}
+          />
+        )}
         <input
           type="file"
           accept="application/pdf"
           onChange={handleFileUpload}
         />
-        <button onClick={() => console.log(data)}>Submit</button>
+        <SubmitButton onClick={handleSubmit}>Submit</SubmitButton>
+        {submissionStatus && <p>{submissionStatus}</p>}
       </FormWrapper>
     </Container>
   );
