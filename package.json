@@ -17,6 +17,7 @@
     "@mui/material": "^6.4.6",
     "@reduxjs/toolkit": "^2.6.0",
     "firebase": "^11.4.0",
+    "iconsax-react": "^0.0.8",
     "next": "15.2.0",
     "next-auth": "^4.24.11",
     "react": "^19.0.0",
