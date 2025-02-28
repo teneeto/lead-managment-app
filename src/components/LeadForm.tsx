@@ -217,25 +217,44 @@ const LeadForm: React.FC = () => {
     const storageRef = ref(storage, `resumes/${file.name}`);
     const uploadTask = uploadBytesResumable(storageRef, file);
 
-    uploadTask.on("state_changed", async () => {
-      const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-      setData((prev) => ({ ...prev, resume: downloadURL }));
-    });
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        const progress =
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        console.log(`Upload is ${progress}% done`);
+      },
+      (error) => console.error("Upload failed", error),
+      async () => {
+        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+        setData((prev) => ({ ...prev, resume: downloadURL }));
+        console.log("File available at", downloadURL);
+      }
+    );
   };
 
   const handleSubmit = async () => {
+    console.log("data", { ...data, ...visaData, ...textAreaData });
     setSubmitted(true);
-    setLoading(true);
-    setSubmissionStatus(null);
 
     if (errors?.length === 0) {
       try {
-        setSubmissionStatus("Lead submitted successfully!");
-        setData({});
+        const response = await fetch("/api/leads", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ ...data, ...visaData, ...textAreaData }),
+        });
+
+        if (response.ok) {
+          setSubmissionStatus("Lead submitted successfully!");
+          setData({});
+        } else {
+          setSubmissionStatus("Submission failed. Please try again.");
+        }
       } catch (error) {
-        setSubmissionStatus("Submission failed. Please try again.");
-      } finally {
-        setLoading(false);
+        setSubmissionStatus("An error occurred while submitting the form.");
       }
     }
   };
