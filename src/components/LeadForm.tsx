@@ -35,6 +35,7 @@ const Section = styled.div`
   background-color: #d9dea5;
   height: 40vh;
   width: 100%;
+  padding: 16px;
   background-image: url("/images/diced_lemon.png");
   background-size: contain;
   background-position: left center;
@@ -264,7 +265,7 @@ const LeadForm: React.FC = () => {
       <Section>
         <TitleContainer>
           <Logo
-            src="/images/alma_logo.png"
+            src="/images/trans_logo.png"
             alt="Alma Logo"
             width={480 / 7}
             height={260 / 7}
