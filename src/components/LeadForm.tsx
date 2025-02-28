@@ -24,21 +24,48 @@ interface LeadData {
   email?: string;
   country?: string;
   linkedin?: string;
-  visas?: string[];
   resume?: string;
   message?: string;
 }
 
 interface JsonFormsChangeEvent extends Pick<JsonFormsCore, "data" | "errors"> {}
+const MainContainer = styled.div``;
+const Section = styled.div`
+  display: flex;
+  background-color: #d9dea5;
+  height: 40vh;
+  width: 100%;
+  background-image: url("/images/diced_lemon.png");
+  background-size: contain;
+  background-position: left center;
+  background-repeat: no-repeat;
+`;
+
+const TitleContainer = styled.div`
+  max-width: 800px;
+  margin: auto;
+`;
+
+const Title = styled.h2`
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+  font-weight: bolder;
+  color: #000000;
+  line-height: 50px;
+  letter-spacing: 3px;
+`;
+
+const Logo = styled.img`
+  margin-bottom: 20px;
+`;
 
 const Container = styled.div`
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
   background-color: #f8f9fa;
-  padding: 50px 20px;
+  /* padding: 50px 20px; */
 `;
 
 const FormWrapper = styled.div`
@@ -47,15 +74,20 @@ const FormWrapper = styled.div`
   background: white;
   padding: 40px;
   border-radius: 10px;
-  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
+  /* box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1); */
   text-align: center;
 `;
+const FormSection = styled.div`
+  margin-top: 40px;
+`;
+const FormSectionTitle = styled.h3`
+  font-weight: bold;
+  margin: 15px 0 15px 0;
+`;
 
-const Title = styled.h2`
-  font-size: 1.8rem;
-  margin-bottom: 20px;
-  font-weight: 700;
-  color: #2c3e50;
+const FormSectionDescription = styled.p`
+  font-weight: bold;
+  margin-bottom: 40px;
 `;
 
 const FileInput = styled.input`
@@ -102,7 +134,7 @@ const SuccessMessage = styled.p`
   margin-top: 10px;
 `;
 
-const schema = {
+const visaOptions = {
   type: "object",
   properties: {
     firstName: { type: "string", title: "First Name" },
@@ -114,26 +146,28 @@ const schema = {
       enum: countries,
     },
     linkedin: { type: "string", title: "LinkedIn Profile" },
+  },
+  required: ["firstName", "lastName", "email", "country", "linkedin"],
+};
+const textAreaSchema = {
+  type: "object",
+  properties: {
+    message: { type: "string", title: "How can we help you?", maxLength: 500 },
+  },
+};
+
+const visaCategories = {
+  type: "object",
+  properties: {
     visas: {
       type: "array",
-      title: "Visa Categories of Interest",
       items: {
         type: "string",
         enum: ["O1", "EB2A", "EB2-NIW", "I don't know"],
       },
       uniqueItems: true,
     },
-    resume: { type: "string", title: "Upload Resume (PDF)" },
-    message: { type: "string", title: "How can we help you?", maxLength: 500 },
   },
-  required: [
-    "firstName",
-    "lastName",
-    "email",
-    "country",
-    "linkedin",
-    "message",
-  ],
 };
 
 const uischema = {
@@ -144,14 +178,26 @@ const uischema = {
     { type: "Control", scope: "#/properties/email" },
     { type: "Control", scope: "#/properties/country" },
     { type: "Control", scope: "#/properties/linkedin" },
-    { type: "Control", scope: "#/properties/visas" },
-    { type: "Control", scope: "#/properties/resume" },
-    { type: "Control", scope: "#/properties/message" },
   ],
+};
+
+const textAreaUIschema = {
+  type: "Control",
+  scope: "#/properties/message",
+};
+
+const visaUISchema = {
+  type: "Control",
+  scope: "#/properties/visas",
+  options: {
+    format: "radio",
+  },
 };
 
 const LeadForm: React.FC = () => {
   const [data, setData] = useState<LeadData>({});
+  const [visaData, setVisaData] = useState<string[]>([]);
+  const [textAreaData, setAreaTextAreaData] = useState<string[]>([]);
   const [submitted, setSubmitted] = useState<boolean>(false);
   const [errors, setErrors] = useState<JsonFormsCore["errors"]>([]);
   const [isMounted, setIsMounted] = useState<boolean>(false);
@@ -177,32 +223,132 @@ const LeadForm: React.FC = () => {
     });
   };
 
+  const handleSubmit = async () => {
+    setSubmitted(true);
+    setLoading(true);
+    setSubmissionStatus(null);
+
+    if (errors?.length === 0) {
+      try {
+        setSubmissionStatus("Lead submitted successfully!");
+        setData({});
+      } catch (error) {
+        setSubmissionStatus("Submission failed. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
   return (
-    <Container>
-      <FormWrapper>
-        <Title>Get An Assessment Of Your Immigration Case</Title>
-        {isMounted && (
-          <JsonForms
-            schema={schema}
-            uischema={uischema}
-            data={data}
-            renderers={materialRenderers}
-            cells={materialCells}
-            onChange={({ data }) => setData(data)}
+    <MainContainer>
+      <Section>
+        <TitleContainer>
+          <Logo
+            src="/images/alma_logo.png"
+            alt="Alma Logo"
+            width={480 / 7}
+            height={260 / 7}
           />
-        )}
-        <FileInput
-          type="file"
-          accept="application/pdf"
-          onChange={handleFileUpload}
-        />
-        <SubmitButton disabled={loading}>Submit</SubmitButton>
-        {loading && <LoadingIndicator>Submitting...</LoadingIndicator>}
-        {submissionStatus && (
-          <SuccessMessage>{submissionStatus}</SuccessMessage>
-        )}
-      </FormWrapper>
-    </Container>
+          <Title>
+            Get An Assessment <br /> Of Your Immigration Case
+          </Title>
+        </TitleContainer>
+      </Section>
+
+      <Container>
+        <FormWrapper>
+          <FormSection>
+            <img
+              src="/images/file.png"
+              alt="file icon"
+              width={274 / 6}
+              height={352 / 6}
+            />
+            <FormSectionTitle>
+              Want to understand your visa options?
+            </FormSectionTitle>
+            <FormSectionDescription>
+              Submit the form below and our team of experienced attorneys will
+              review your information and send a preliminary assessment of your
+              case based on your goals.
+            </FormSectionDescription>
+            {isMounted && (
+              <JsonForms
+                schema={visaOptions}
+                uischema={uischema}
+                data={data}
+                renderers={materialRenderers}
+                cells={materialCells}
+                onChange={({ data, errors }: JsonFormsChangeEvent) => {
+                  setData(data);
+                  if (submitted) {
+                    setErrors(errors ?? []);
+                  }
+                }}
+              />
+            )}
+          </FormSection>
+
+          <FormSection>
+            <img
+              src="/images/file.png"
+              alt="file icon"
+              width={274 / 6}
+              height={352 / 6}
+            />
+            <FormSectionTitle>Visa Categories of Interest?</FormSectionTitle>
+            {isMounted && (
+              <JsonForms
+                schema={visaCategories}
+                uischema={visaUISchema}
+                data={visaData}
+                renderers={materialRenderers}
+                cells={materialCells}
+                onChange={({ data }) => setVisaData(data)}
+              />
+            )}
+          </FormSection>
+
+          <FormSection>
+            <img
+              src="/images/heart.png"
+              alt="file icon"
+              width={274 / 4.5}
+              height={352 / 6}
+            />
+            <FormSectionTitle>How can we help you?</FormSectionTitle>
+            {isMounted && (
+              <JsonForms
+                schema={textAreaSchema}
+                uischema={textAreaUIschema}
+                data={textAreaData}
+                renderers={materialRenderers}
+                cells={materialCells}
+                onChange={({ data }) => setAreaTextAreaData(data)}
+              />
+            )}
+          </FormSection>
+
+          <FormSection>
+            <FormSectionTitle>Resume / CV (file upload)</FormSectionTitle>
+            <FileInput
+              type="file"
+              accept="application/pdf"
+              onChange={handleFileUpload}
+            />
+          </FormSection>
+
+          <SubmitButton onClick={handleSubmit} disabled={loading}>
+            Submit
+          </SubmitButton>
+          {loading && <LoadingIndicator>Submitting...</LoadingIndicator>}
+          {submissionStatus && (
+            <SuccessMessage>{submissionStatus}</SuccessMessage>
+          )}
+        </FormWrapper>
+      </Container>
+    </MainContainer>
   );
 };
 
