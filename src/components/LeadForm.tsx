@@ -12,6 +12,8 @@ import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { JsonFormsCore } from "@jsonforms/core";
 import { countries } from "@/utils/countries";
 import { storage } from "@/lib/firebaseConfig";
+import TextButton from "./TextButton";
+import Link from "next/link";
 
 const JsonForms = dynamic(
   () => import("@jsonforms/react").then((mod) => mod.JsonForms),
@@ -364,6 +366,13 @@ const LeadForm: React.FC = () => {
           {submissionStatus && (
             <SuccessMessage>{submissionStatus}</SuccessMessage>
           )}
+
+          <SignInLink>
+            <Link href="/leads-list" passHref>
+              <TextButton text="Sign In " />
+            </Link>
+            To View Leads List
+          </SignInLink>
         </FormWrapper>
       </Container>
     </MainContainer>
@@ -371,3 +380,7 @@ const LeadForm: React.FC = () => {
 };
 
 export default LeadForm;
+
+const SignInLink = styled.div`
+  margin: 20px;
+`;
