@@ -50,3 +50,5 @@ We upload files to Firebase, and to use firebase we need to create `.env` file i
   NEXT_PUBLIC_FIREBASE_APP_ID =
 ```
 
+## viewing the Leads list
+You can hit the `Sign In` Text button just below the end of the immigration form `Submit` for access to the leads list
