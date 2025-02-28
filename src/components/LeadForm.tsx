@@ -106,7 +106,7 @@ const SubmitButton = styled.button`
   font-size: 1rem;
   font-weight: 600;
   color: white;
-  background-color: #0052cc;
+  background-color: #111;
   border: none;
   border-radius: 8px;
   cursor: pointer;
